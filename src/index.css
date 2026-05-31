@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Theme variables ──────────────────────────────────────────── */
+:root {
+  --color-surface: #0f1117;
+  --color-card:    #1a1d27;
+  --color-border:  #2a2d3a;
+  --color-text:    #e2e8f0;
+  --color-muted:   #9ca3af;
+  --color-subtle:  #6b7280;
+  --color-overlay: rgba(255,255,255,0.04);
+  --color-overlay2: rgba(255,255,255,0.06);
+}
+
+.light {
+  --color-surface: #f1f5f9;
+  --color-card:    #ffffff;
+  --color-border:  #e2e8f0;
+  --color-text:    #1e293b;
+  --color-muted:   #475569;
+  --color-subtle:  #94a3b8;
+  --color-overlay: rgba(0,0,0,0.04);
+  --color-overlay2: rgba(0,0,0,0.06);
+}
+
+/* ── Base ─────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s, color 0.2s;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+}
+
+/* ── Light theme text / bg overrides ──────────────────────────── */
+.light .text-white            { color: var(--color-text) !important; }
+.light .text-gray-100         { color: #1e293b !important; }
+.light .text-gray-200         { color: #334155 !important; }
+.light .text-gray-300         { color: #475569 !important; }
+.light .text-gray-400         { color: #64748b !important; }
+.light .text-gray-500         { color: #94a3b8 !important; }
+.light .text-gray-600         { color: #cbd5e1 !important; }
+.light .border-border         { border-color: var(--color-border) !important; }
+/* translucent overlay swaps to dark-on-light */
+.light .bg-white\/4           { background-color: var(--color-overlay)  !important; }
+.light .bg-white\/5           { background-color: rgba(0,0,0,0.05) !important; }
+.light .bg-white\/6           { background-color: var(--color-overlay2) !important; }
+.light .hover\:bg-white\/4:hover { background-color: var(--color-overlay)  !important; }
+.light .hover\:bg-white\/5:hover { background-color: rgba(0,0,0,0.05) !important; }
+/* chart / tooltip */
+.light .recharts-cartesian-grid line { stroke: #e2e8f0 !important; }
+.light .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--color-card) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* ── react-grid-layout ────────────────────────────────────────── */
+.react-grid-item.react-grid-placeholder {
+  background: rgba(99, 102, 241, 0.15) !important;
+  border: 1px dashed rgba(99, 102, 241, 0.5) !important;
+  border-radius: 8px;
+}
+.react-resizable-handle::after {
+  border-color: #6366f1 !important;
+}
+
+/* ── Ticker scrolling ─────────────────────────────────────────── */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-row {
+  display: flex;
+  overflow: hidden;
+}
+.ticker-track {
+  display: inline-flex;
+  gap: 0;
+  white-space: nowrap;
+  animation: ticker-scroll var(--ticker-duration, 30s) linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+
+/* ── Utility ──────────────────────────────────────────────────── */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
