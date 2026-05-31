@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchChart, fetchQuotes, fetchFundamentals, fetchNews, fetchMultiHistory } from '../api/yahoo'
+import { fetchChart, fetchQuotes, fetchFundamentals, fetchNews, fetchMultiHistory, fetchPeriodQuotes } from '../api/yahoo'
+import type { PeriodStat } from '../api/yahoo'
 import type { Period, Interval } from '../types'
+
+export type PeriodQuoteMap = Record<string, PeriodStat>
 
 // Short periods need frequent refresh; long periods only need occasional updates
 function periodRefetch(period: Period): number {
@@ -35,6 +38,17 @@ export function useMultiChart(symbols: string[], period: Period, interval: Inter
   return useQuery({
     queryKey: ['multi-chart', symbols.join(','), period, interval, normalize],
     queryFn: () => fetchMultiHistory(symbols, period, interval, normalize),
+    staleTime: ri,
+    refetchInterval: ri,
+    enabled: symbols.length > 0,
+  })
+}
+
+export function usePeriodQuotes(symbols: string[], period: Period) {
+  const ri = periodRefetch(period)
+  return useQuery<PeriodQuoteMap>({
+    queryKey: ['period-quotes', symbols.join(','), period],
+    queryFn: () => fetchPeriodQuotes(symbols, period),
     staleTime: ri,
     refetchInterval: ri,
     enabled: symbols.length > 0,

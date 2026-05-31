@@ -6,7 +6,7 @@ import { WidgetGrid } from './components/WidgetGrid'
 import { ChatPanel } from './components/ChatPanel'
 import { SettingsPanel } from './components/SettingsPanel'
 import { useStorage } from './hooks/useStorage'
-import { useQuotes } from './hooks/useStockData'
+import { useQuotes, usePeriodQuotes } from './hooks/useStockData'
 import { buildColorMap } from './utils/colors'
 import type { Widget, Tab, AppSettings, Period, WidgetKind } from './types'
 
@@ -28,7 +28,7 @@ const qc = new QueryClient({
 })
 
 const DEFAULT_SETTINGS: AppSettings = {
-  symbols: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA'],
+  symbols: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'NFLX', 'AMD', 'INTC', 'JPM', 'HD'],
   geminiApiKey: '',
   autoRefresh: false,
   refreshInterval: 60,
@@ -190,6 +190,7 @@ function AppInner() {
 
   const queryClient = useQueryClient()
   const { data: quotes = [], isFetching: quotesFetching, dataUpdatedAt } = useQuotes(allSymbols)
+  const { data: periodData } = usePeriodQuotes(allSymbols, globalPeriod)
 
   function refetchAll() {
     queryClient.refetchQueries()
@@ -326,7 +327,7 @@ function AppInner() {
       <header className="flex items-center gap-2 px-4 py-2 bg-card border-b border-border shrink-0">
         <div className="flex items-center gap-2 shrink-0">
           <BarChart2 size={16} className="text-indigo-400" />
-          <span className="text-sm font-bold text-white tracking-tight">Stock Ticker</span>
+          <span className="text-xl font-bold text-white tracking-tight">Stock Ticker</span>
         </div>
 
         {/* Global period selector */}
@@ -431,6 +432,8 @@ function AppInner() {
         onRefresh={refetchAll}
         isFetching={quotesFetching}
         updatedAt={dataUpdatedAt}
+        globalPeriod={globalPeriod}
+        periodData={periodData}
       />
 
       {/* Main content */}

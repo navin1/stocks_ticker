@@ -225,6 +225,31 @@ export async function fetchNews(symbols: string[], count = 8): Promise<NewsItem[
   return all.sort((a, b) => new Date(b.published).getTime() - new Date(a.published).getTime())
 }
 
+// ── Period-based quotes for the ticker strip ─────────────────────────────────
+
+export type PeriodStat = { change: number | null; changePct: number | null }
+
+export async function fetchPeriodQuotes(
+  symbols: string[],
+  period: string,
+): Promise<Record<string, PeriodStat>> {
+  const results = await Promise.allSettled(
+    symbols.map(s => fetchChart(s, period, '1d'))
+  )
+  const out: Record<string, PeriodStat> = {}
+  results.forEach((res, i) => {
+    const sym = symbols[i].toUpperCase()
+    if (res.status !== 'fulfilled') { out[sym] = { change: null, changePct: null }; return }
+    const { quote, candles } = res.value
+    const valid = candles.filter(c => c.close != null)
+    if (!valid.length || quote.price == null) { out[sym] = { change: null, changePct: null }; return }
+    const firstClose = valid[0].close!
+    const change = quote.price - firstClose
+    out[sym] = { change, changePct: (change / firstClose) * 100 }
+  })
+  return out
+}
+
 // ── Multi-symbol history (long format) ───────────────────────────────────────
 
 export interface MultiCandle {
