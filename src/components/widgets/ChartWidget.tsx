@@ -130,7 +130,7 @@ export function ChartWidget({
           </div>
 
           {/* Chart */}
-          <div className={`flex-1 min-h-0 relative transition-opacity ${isFetching && !isLoading ? 'opacity-60' : ''}`}>
+          <div className={`flex-1 relative min-h-[80px] transition-opacity ${isFetching && !isLoading ? 'opacity-60' : ''}`}>
             <div className="absolute inset-0 p-2">
               {isLoading ? (
                 <div className="flex items-center justify-center h-full">

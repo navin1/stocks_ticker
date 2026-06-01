@@ -142,7 +142,7 @@ export function WidgetGrid({ widgets, onWidgetsChange, watchedSymbols, globalPer
           const copyToTab = onCopyWidget ? (tabId: string) => onCopyWidget(w.id, tabId) : undefined
           const moveToTab = onMoveWidget ? (tabId: string) => onMoveWidget(w.id, tabId) : undefined
           return (
-            <div key={w.id}>
+            <div key={w.id} className="h-full">
               {w.kind === 'chart' && (
                 <ChartWidget
                   widget={w}
