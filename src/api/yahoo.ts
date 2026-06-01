@@ -75,8 +75,11 @@ export async function fetchChart(
 
   const timestamps: number[] = result.timestamp ?? []
   const ohlcv = result.indicators?.quote?.[0] ?? {}
+  const intraday = ['1m', '5m', '15m', '60m'].includes(interval)
   const candles: Candle[] = timestamps.map((ts, i) => ({
-    date: new Date(ts * 1000).toISOString().slice(0, 10),
+    date: intraday
+      ? new Date(ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+      : new Date(ts * 1000).toISOString().slice(0, 10),
     open:   ohlcv.open?.[i]   ?? null,
     high:   ohlcv.high?.[i]   ?? null,
     low:    ohlcv.low?.[i]    ?? null,

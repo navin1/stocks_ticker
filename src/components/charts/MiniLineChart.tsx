@@ -44,6 +44,9 @@ export function SingleLineChart({ data, color = '#6366f1', basePrice }: SinglePr
   const fmt = (v: number) =>
     v >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v.toFixed(2)}`
 
+  // 'HH:MM' = intraday (length ≤ 5), 'YYYY-MM-DD' = daily+
+  const fmtTick = (v: string) => v.length <= 5 ? v : v.slice(5, 10)
+
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100%', minHeight: 80 }}>
       {noData ? (
@@ -56,7 +59,7 @@ export function SingleLineChart({ data, color = '#6366f1', basePrice }: SinglePr
             tick={{ fontSize: 10, fill: '#6b7280' }}
             tickLine={false}
             axisLine={false}
-            tickFormatter={v => v.slice(5)}
+            tickFormatter={fmtTick}
             interval="preserveStartEnd"
           />
           <YAxis
@@ -115,6 +118,8 @@ export function MultiLineChart({ data, valueKey = 'close' }: MultiProps) {
     ? (v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(2)}%`
     : (v: number) => v >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v.toFixed(2)}`
 
+  const fmtTick = (v: string) => v.length <= 5 ? v : v.slice(5, 10)
+
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100%', minHeight: 80 }}>
       {noData ? (
@@ -127,7 +132,7 @@ export function MultiLineChart({ data, valueKey = 'close' }: MultiProps) {
             tick={{ fontSize: 10, fill: '#6b7280' }}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(v: string) => v.slice(5)}
+            tickFormatter={fmtTick}
             interval="preserveStartEnd"
           />
           <YAxis
