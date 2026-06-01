@@ -5,12 +5,11 @@ import type { ChatMessage, Widget } from '../types'
 
 interface Props {
   symbols: string[]
-  apiKey: string
   onAddWidget?: (widget: Partial<Widget>) => void
   onClose: () => void
 }
 
-export function ChatPanel({ symbols, apiKey, onAddWidget, onClose }: Props) {
+export function ChatPanel({ symbols, onAddWidget, onClose }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
@@ -38,7 +37,7 @@ export function ChatPanel({ symbols, apiKey, onAddWidget, onClose }: Props) {
     setLoading(true)
 
     try {
-      const reply = await geminiChat(next, apiKey, buildStockSystemPrompt(symbols))
+      const reply = await geminiChat(next, buildStockSystemPrompt(symbols))
       const action = parseWidgetAction(reply)
       const cleanReply = reply.replace(/<action>[\s\S]*?<\/action>/g, '').trim()
 

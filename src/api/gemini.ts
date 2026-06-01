@@ -1,13 +1,79 @@
 import type { ChatMessage } from '../types'
+import { getGcpToken, invalidateCachedToken } from './auth'
 
-const ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+// ── Model (change this one line to switch models) ─────────────────────────────
+const MODEL = 'gemini-2.5-flash'
+
+// ── Settings loader ───────────────────────────────────────────────────────────
+
+async function loadGcpConfig(): Promise<{ projectId: string; region: string }> {
+  if (typeof chrome === 'undefined' || !chrome.storage) {
+    return { projectId: '', region: 'us-central1' }
+  }
+  return new Promise(r =>
+    chrome.storage.local.get('gst_settings', v => {
+      const s = (v.gst_settings ?? {}) as Record<string, string>
+      r({ projectId: s.gcpProjectId ?? '', region: s.gcpRegion ?? 'us-central1' })
+    }),
+  )
+}
+
+// ── Google login via chrome.identity (requires oauth2 in manifest) ─────────────
+
+export function googleLogin(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (!chrome?.identity?.getAuthToken) {
+      reject(new Error('chrome.identity not available'))
+      return
+    }
+    chrome.identity.getAuthToken(
+      { interactive: true, scopes: ['https://www.googleapis.com/auth/cloud-platform'] },
+      (result) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message ?? 'Auth failed'))
+          return
+        }
+        const token = typeof result === 'string' ? result : result?.token
+        if (token) resolve(token)
+        else reject(new Error('No token returned — make sure oauth2.client_id is set in manifest.json'))
+      },
+    )
+  })
+}
+
+// ── Connection test ───────────────────────────────────────────────────────────
+
+export async function testConnection(
+  token: string,
+  projectId: string,
+  region: string,
+): Promise<void> {
+  if (!token)     throw new Error('No token provided.')
+  if (!projectId) throw new Error('GCP Project ID is required.')
+
+  const endpoint = `https://${region}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${region}/publishers/google/models/${MODEL}:generateContent`
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'hi' }] }] }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err?.error?.message ?? `HTTP ${res.status}`)
+  }
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
 
 export async function geminiChat(
   messages: ChatMessage[],
-  apiKey: string,
   systemPrompt?: string,
 ): Promise<string> {
-  if (!apiKey) throw new Error('Gemini API key not set. Add it in Settings.')
+  const [token, { projectId, region }] = await Promise.all([getGcpToken(), loadGcpConfig()])
+
+  if (!projectId) throw new Error('GCP Project ID not set. Add it in Settings → Gemini.')
+
+  const endpoint = `https://${region}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${region}/publishers/google/models/${MODEL}:generateContent`
 
   const contents = messages.map(m => ({
     role: m.role === 'user' ? 'user' : 'model',
@@ -16,23 +82,27 @@ export async function geminiChat(
 
   const body: Record<string, unknown> = { contents }
   if (systemPrompt) {
-    body.system_instruction = { parts: [{ text: systemPrompt }] }
+    body.systemInstruction = { parts: [{ text: systemPrompt }] }
   }
 
-  const res = await fetch(`${ENDPOINT}?key=${apiKey}`, {
+  const res = await fetch(endpoint, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
     body: JSON.stringify(body),
   })
 
   if (!res.ok) {
+    if (res.status === 401) await invalidateCachedToken()
     const err = await res.json().catch(() => ({}))
-    throw new Error(err?.error?.message ?? `Gemini error: HTTP ${res.status}`)
+    const msg: string = err?.error?.message ?? `Vertex AI error: HTTP ${res.status}`
+    throw new Error(msg)
   }
 
   const data = await res.json()
   return data.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
 }
+
+// ── System prompt + action parsing ───────────────────────────────────────────
 
 export function buildStockSystemPrompt(symbols: string[]): string {
   return `You are an expert stock market analyst assistant. The user is watching: ${symbols.join(', ')}.

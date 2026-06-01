@@ -84,7 +84,11 @@ export interface Tab {
 
 export interface AppSettings {
   symbols: string[]
-  geminiApiKey: string
+  geminiApiKey: string        // manual GCP token
+  gcpProjectId: string
+  gcpRegion: string
+  gcpAuthMode: 'manual' | 'oauth' | 'json'
+  gcpOauthClientId: string
   autoRefresh: boolean
   refreshInterval: number  // seconds
   theme: 'dark' | 'light'

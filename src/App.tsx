@@ -30,9 +30,13 @@ const qc = new QueryClient({
 const DEFAULT_SETTINGS: AppSettings = {
   symbols: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'NFLX', 'AMD', 'INTC', 'JPM', 'HD'],
   geminiApiKey: '',
+  gcpProjectId: '',
+  gcpRegion: 'us-central1',
+  gcpAuthMode: 'manual',
+  gcpOauthClientId: '',
   autoRefresh: false,
   refreshInterval: 60,
-  theme: 'dark',
+  theme: 'light',
   globalPeriod: '3mo',
 }
 
@@ -455,7 +459,6 @@ function AppInner() {
         {showChat && (
           <ChatPanel
             symbols={watchlistSymbols}
-            apiKey={settings.geminiApiKey}
             onAddWidget={handleChatAddWidget}
             onClose={() => setShowChat(false)}
           />
