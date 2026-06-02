@@ -21,6 +21,7 @@ interface Props {
   activeTabId?: string
   onCopyWidget?: (widgetId: string, targetTabId: string) => void
   onMoveWidget?: (widgetId: string, targetTabId: string) => void
+  onAddNewsForSymbols?: (symbols: string[]) => void
 }
 
 function canAddWidgetToTab(widget: Widget, targetWidgets: Widget[]): boolean {
@@ -36,7 +37,7 @@ function canAddWidgetToTab(widget: Widget, targetWidgets: Widget[]): boolean {
   return true // news: allow multiples
 }
 
-export function WidgetGrid({ widgets, onWidgetsChange, watchedSymbols, globalPeriod, colorMap = {}, allTabs = [], activeTabId, onCopyWidget, onMoveWidget }: Props) {
+export function WidgetGrid({ widgets, onWidgetsChange, watchedSymbols, globalPeriod, colorMap = {}, allTabs = [], activeTabId, onCopyWidget, onMoveWidget, onAddNewsForSymbols }: Props) {
   const [combineModal, setCombineModal] = useState<string | null>(null)
 
   const updateWidget = useCallback((id: string, patch: Partial<Widget>) => {
@@ -154,6 +155,7 @@ export function WidgetGrid({ widgets, onWidgetsChange, watchedSymbols, globalPer
                   otherTabs={otherTabs}
                   onCopyToTab={copyToTab}
                   onMoveToTab={moveToTab}
+                  onAddNews={onAddNewsForSymbols && w.symbol ? () => onAddNewsForSymbols([w.symbol!]) : undefined}
                 />
               )}
               {w.kind === 'combo' && (
@@ -168,6 +170,7 @@ export function WidgetGrid({ widgets, onWidgetsChange, watchedSymbols, globalPer
                   otherTabs={otherTabs}
                   onCopyToTab={copyToTab}
                   onMoveToTab={moveToTab}
+                  onAddNews={onAddNewsForSymbols && w.symbols?.length ? () => onAddNewsForSymbols(w.symbols!) : undefined}
                 />
               )}
               {w.kind === 'news' && (
@@ -188,6 +191,7 @@ export function WidgetGrid({ widgets, onWidgetsChange, watchedSymbols, globalPer
                   otherTabs={otherTabs}
                   onCopyToTab={copyToTab}
                   onMoveToTab={moveToTab}
+                  onAddNews={onAddNewsForSymbols && w.symbol ? () => onAddNewsForSymbols([w.symbol!]) : undefined}
                 />
               )}
             </div>

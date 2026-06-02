@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, RefreshCw, TrendingUp, TrendingDown, GitMerge, BarChart2, LayoutGrid } from 'lucide-react'
+import { X, RefreshCw, TrendingUp, TrendingDown, GitMerge, BarChart2, LayoutGrid, Newspaper } from 'lucide-react'
 import { useChart } from '../../hooks/useStockData'
 import { SingleLineChart } from '../charts/MiniLineChart'
 import { KPICardGrid } from './KPIWidget'
@@ -35,11 +35,12 @@ interface Props {
   otherTabs?: TabOption[]
   onCopyToTab?: (tabId: string) => void
   onMoveToTab?: (tabId: string) => void
+  onAddNews?: () => void
 }
 
 export function ChartWidget({
   widget, onRemove, onConvertToCombo, onPeriodChange, globalPeriod,
-  symbolColor = '#6366f1', otherTabs = [], onCopyToTab, onMoveToTab,
+  symbolColor = '#6366f1', otherTabs = [], onCopyToTab, onMoveToTab, onAddNews,
 }: Props) {
   const symbol = widget.symbol ?? ''
   const [period, setPeriod] = useState<Period>(globalPeriod ?? widget.period)
@@ -83,6 +84,11 @@ export function ChartWidget({
           )}
         </div>
         <div className="flex items-center gap-1 shrink-0">
+          {onAddNews && (
+            <button onClick={onAddNews} className="p-1 text-gray-500 hover:text-amber-400 transition-colors" title="News feed">
+              <Newspaper size={13} />
+            </button>
+          )}
           {onConvertToCombo && (
             <button onClick={onConvertToCombo} className="p-1 text-gray-500 hover:text-indigo-400 transition-colors" title="Combine with other stocks">
               <GitMerge size={13} />

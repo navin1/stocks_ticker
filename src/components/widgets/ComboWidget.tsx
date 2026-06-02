@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, RefreshCw, GitMerge, Unlink } from 'lucide-react'
+import { X, RefreshCw, GitMerge, Unlink, Newspaper } from 'lucide-react'
 import { useMultiChart } from '../../hooks/useStockData'
 import { MultiLineChart } from '../charts/MiniLineChart'
 import { TabMenu } from '../TabMenu'
@@ -35,9 +35,10 @@ interface Props {
   otherTabs?: TabOption[]
   onCopyToTab?: (tabId: string) => void
   onMoveToTab?: (tabId: string) => void
+  onAddNews?: () => void
 }
 
-export function ComboWidget({ widget, onRemove, onSplit, onPeriodChange, onNormalizeToggle, globalPeriod, symbolColor = '#6366f1', otherTabs = [], onCopyToTab, onMoveToTab }: Props) {
+export function ComboWidget({ widget, onRemove, onSplit, onPeriodChange, onNormalizeToggle, globalPeriod, symbolColor = '#6366f1', otherTabs = [], onCopyToTab, onMoveToTab, onAddNews }: Props) {
   const symbols = widget.symbols ?? []
   const [period, setPeriod] = useState<Period>(globalPeriod ?? widget.period)
   const normalize = widget.normalize ?? false
@@ -68,6 +69,11 @@ export function ComboWidget({ widget, onRemove, onSplit, onPeriodChange, onNorma
           <span className="font-semibold text-sm text-white truncate">{symbols.join(' · ')}</span>
         </div>
         <div className="flex items-center gap-1 shrink-0">
+          {onAddNews && (
+            <button onClick={onAddNews} className="p-1 text-gray-500 hover:text-amber-400 transition-colors" title="News feed">
+              <Newspaper size={13} />
+            </button>
+          )}
           <button onClick={onSplit} className="p-1 text-gray-500 hover:text-amber-400 transition-colors" title="Split into individual charts">
             <Unlink size={13} />
           </button>

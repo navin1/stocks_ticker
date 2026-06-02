@@ -453,6 +453,7 @@ function AppInner() {
             activeTabId={activeTabId}
             onCopyWidget={copyWidgetToTab}
             onMoveWidget={moveWidgetToTab}
+            onAddNewsForSymbols={(symbols) => addWidget('news', { symbols })}
           />
         </div>
 

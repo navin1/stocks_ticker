@@ -1,4 +1,4 @@
-import { X, RefreshCw, TrendingUp, TrendingDown } from 'lucide-react'
+import { X, RefreshCw, TrendingUp, TrendingDown, Newspaper } from 'lucide-react'
 import { useFundamentals } from '../../hooks/useStockData'
 import { hexRgba } from '../../utils/colors'
 import { TabMenu } from '../TabMenu'
@@ -13,6 +13,7 @@ interface Props {
   otherTabs?: TabOption[]
   onCopyToTab?: (tabId: string) => void
   onMoveToTab?: (tabId: string) => void
+  onAddNews?: () => void
 }
 
 function KPICard({ label, value, sub }: { label: string; value: string; sub?: string }) {
@@ -80,7 +81,7 @@ export function KPICardGrid({ symbol }: { symbol: string }) {
   )
 }
 
-export function KPIWidget({ widget, onRemove, symbolColor = '#6366f1', otherTabs = [], onCopyToTab, onMoveToTab }: Props) {
+export function KPIWidget({ widget, onRemove, symbolColor = '#6366f1', otherTabs = [], onCopyToTab, onMoveToTab, onAddNews }: Props) {
   const symbol = widget.symbol ?? ''
   const { data: f, isLoading, isFetching, refetch } = useFundamentals(symbol)
   const up = (f?.changePct ?? 0) >= 0
@@ -106,6 +107,11 @@ export function KPIWidget({ widget, onRemove, symbolColor = '#6366f1', otherTabs
           )}
         </div>
         <div className="flex items-center gap-1">
+          {onAddNews && (
+            <button onClick={onAddNews} className="p-1 text-gray-500 hover:text-amber-400 transition-colors" title="News feed">
+              <Newspaper size={13} />
+            </button>
+          )}
           <TabMenu tabs={otherTabs} onCopy={onCopyToTab ?? (() => {})} onMove={onMoveToTab ?? (() => {})} />
           <button onClick={() => refetch()} className="p-1 text-gray-500 hover:text-white transition-colors">
             <RefreshCw size={13} className={isFetching ? 'animate-spin' : ''} />
